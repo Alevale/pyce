@@ -1,0 +1,21 @@
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/tripledes.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+
+
+<script>
+
+    var mensaje = 'lo que digolo que digolo que digolo que digolo que digo';
+    var hash = CryptoJS.MD5(mensaje);
+    console.log(hash.toString());
+    var encrypted = CryptoJS.AES.encrypt(mensaje+' '+(new Date).toISOString(), "U2FsdGVkX18vUVvpskDjgW0PzkrS0TlVVzM9Qvl6R/YDQI2UKLfkUAYn4+ziTeBTnm5xTmcfZJ4PFtmx");
+    console.log(encrypted.toString());
+
+
+
+    var decrypted = CryptoJS.AES.decrypt(encrypted, "U2FsdGVkX18vUVvpskDjgW0PzkrS0TlVVzM9Qvl6R/YDQI2UKLfkUAYn4+ziTeBTnm5xTmcfZJ4PFtmx");
+    console.log(decrypted.toString(CryptoJS.enc.Latin1));
+
+    var decrypted = CryptoJS.AES.decrypt("U2FsdGVkX18vUVvpskDjgW0PzkrS0TlVVzM9Qvl6R/YDQI2UKLfkUAYn4+ziTeBTnm5xTmcfZJ4PFtmx", "a");
+    console.log(decrypted.toString());
+</script>
