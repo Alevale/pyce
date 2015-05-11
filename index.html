@@ -1,34 +1,106 @@
+<style>
+    #diferent {
+        width: 900px;
+        height: 900px;
+        border: 0px rgb(89, 89, 89) solid;
+        background: rgb(148, 71, 71);
+        -moz-box-shadow: 5px 6px 0px 0px rgb(111, 56, 56);
+        -webkit-box-shadow: 5px 6px 0px 0px rgb(111, 56, 56);
+        box-shadow: 5px 6px 0px 0px rgb(111, 56, 56);
+    }
+</style>
+
+
+
+<div id="diferent">
+
+</div>
+
 <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/tripledes.js"></script>
 <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
 <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
 
 
 <script>
-    function GenRdmTillLenght(num){
-      var abc	=	'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,=,+,/,0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z'
-      var str = 'U2FsdGVkX1';
-      for(var i = str.length; i < num; i++){
-          str += abc.split(',')[(Math.floor(Math.random() * ((abc.length)/2 - 0)) + 0)]
-      }
-      return str;
+    GenRdmTillLenght = function(num) {
+        var abc = 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,=,+,/,0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z'
+        var str = 'U2FsdGVkX1';
+        for (var i = str.length; i < num; i++) {
+            str += abc.split(',')[(Math.floor(Math.random() * ((abc.length) / 2 - 0)) + 0)]
+        }
+        return str;
+    }
+
+    getStringMemorySize = function(_string) {
+        "use strict";
+
+        var codePoint, accum = 0;
+
+        for (var stringIndex = 0, endOfString = _string.length; stringIndex < endOfString; stringIndex++) {
+            codePoint = _string.charCodeAt(stringIndex);
+
+            if (codePoint < 0x100) {
+                accum += 1;
+                continue;
+            }
+
+            if (codePoint < 0x10000) {
+                accum += 2;
+                continue;
+            }
+
+            if (codePoint < 0x1000000) {
+                accum += 3;
+            } else {
+                accum += 4;
+            }
+        }
+
+        return accum * 2;
+    }
+
+    var arrayOfMessages = [];
+
+    for (var i = 0; i < 100; i++) {
+        arrayOfMessages[i] = GenRdmTillLenght(3000);
+    }
+
+    arrayOfkeys = [];
+
+    for (var i = 0; i < 25; i++) {
+        arrayOfkeys[i] = GenRdmTillLenght(256);
     }
 
     var mensaje = 'Hello how are you';
-    var miMd = '#Proyect Develop by Alejandro Vales sertage","The main objective is to create an aplication that doesnt allow to read the messages that are written by different people in the database","There is only a Database, which is the Message DB, and by the requirements of our application we dondt need any kind of database for users, because the main objective for the application is to keep the anonimously of the comunication between users for a person that trys to *"sniffer"*  the messages between users","As Example we could put two users comunicating in the application.","The User A, and the User b are communicating,","The User A sends a message *"Hello how are you"* with the password *"U2FsdGVkX18vUVvpskDjgW0PzkrS0TlVVzM9Qvl6R/YDQI2UKLfkUAYn4+ziTeBTnm5xTmcfZJ4PFtmx"*","The text beeing encripted in the client is (with the algorithm AES 256) -> "U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA=="","Instead of only sending this message around the web, also we send 2 messages with the same length in paralel, in order to create noise (so if you try to know which is the password with *Brute Force* for the message sended you should look for 3 messages instead of only one)","so the sended messages to the Database will be","-----------","U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA==","-----------","kj12tv12btqfwDAJJDAJAu21bkj2QWTHFWOHWfqwlfhip3d2q634bkj11bkj4rgqi2ohih52oEHqTrqnl0bbzA==","-----------","U2FsdG/qrVkX1%#dhU2FaJAdP125vk1467hj45hlt13rtl1v3tl1t3413b13gligt341tg1r3EHqTrqnl0bbzA==","-----------","Those tree values will be written in the database so the database will have","","1 -> U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA==","2 -> kj12tv12btqfwDAJJDAJAu21bkj2QWTHFWOHWfqwlfhip3d2q634bkj11bkj4rgqi2ohih52oEHqTrqnl0bbzA==","3 -> U2FsdG/qrVkX1%#dhU2FaJAdP125vk1467hj45hlt13rtl1v3tl1t3413b13gligt341tg1r3EHqTrqnl0bbzA==","User B connects to the application and has the Pvt password from the User A, *"we supose they know that the password has to be sended by a secure channel"* and has to be as long as they need to make it secure and unic","User B applyes AES to each message, and the messages are","1 -> Hello how are you","2 -> ----","3 -> ----","So the communication has been secure, * we have to assume that the mening of secure in informatics means that the information has not been decrypted for less than the amount the information is worth*","';
+    var miMd =
+        '#Proyect Develop by Alejandro Vales sertage","The main objective is to create an aplication that doesnt allow to read the messages that are written by different people in the database","There is only a Database, which is the Message DB, and by the requirements of our application we dondt need any kind of database for users, because the main objective for the application is to keep the anonimously of the comunication between users for a person that trys to *"sniffer"*  the messages between users","As Example we could put two users comunicating in the application.","The User A, and the User b are communicating,","The User A sends a message *"Hello how are you"* with the password *"U2FsdGVkX18vUVvpskDjgW0PzkrS0TlVVzM9Qvl6R/YDQI2UKLfkUAYn4+ziTeBTnm5xTmcfZJ4PFtmx"*","The text beeing encripted in the client is (with the algorithm AES 256) -> "U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA=="","Instead of only sending this message around the web, also we send 2 messages with the same length in paralel, in order to create noise (so if you try to know which is the password with *Brute Force* for the message sended you should look for 3 messages instead of only one)","so the sended messages to the Database will be","-----------","U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA==","-----------","kj12tv12btqfwDAJJDAJAu21bkj2QWTHFWOHWfqwlfhip3d2q634bkj11bkj4rgqi2ohih52oEHqTrqnl0bbzA==","-----------","U2FsdG/qrVkX1%#dhU2FaJAdP125vk1467hj45hlt13rtl1v3tl1t3413b13gligt341tg1r3EHqTrqnl0bbzA==","-----------","Those tree values will be written in the database so the database will have","","1 -> U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA==","2 -> kj12tv12btqfwDAJJDAJAu21bkj2QWTHFWOHWfqwlfhip3d2q634bkj11bkj4rgqi2ohih52oEHqTrqnl0bbzA==","3 -> U2FsdG/qrVkX1%#dhU2FaJAdP125vk1467hj45hlt13rtl1v3tl1t3413b13gligt341tg1r3EHqTrqnl0bbzA==","User B connects to the application and has the Pvt password from the User A, *"we supose they know that the password has to be sended by a secure channel"* and has to be as long as they need to make it secure and unic","User B applyes AES to each message, and the messages are","1 -> Hello how are you","2 -> ----","3 -> ----","So the communication has been secure, * we have to assume that the mening of secure in informatics means that the information has not been decrypted for less than the amount the information is worth*","';
 
-    var encrypted = CryptoJS.AES.encrypt(miMd+' **Date** '+(new Date).toISOString(), "esta es la contrase;a definida por ambos usuarios");
-    // console.log(encrypted.toString());
+    var encrypted = CryptoJS.AES.encrypt(miMd + ' **Date** ' + (new Date).toISOString(), "esta es la contrase;a definida por ambos usuarios");
 
     var decrypted = CryptoJS.AES.decrypt(encrypted, "esta es la contrase;a definida por ambos usuarios");
-    // console.log(decrypted.toString(CryptoJS.enc.Latin1));
 
     var decrypted = CryptoJS.AES.decrypt("U2FsdGVkX18vUVvpskDjgW0PzkrS0TlVVzM9Qvl6R/YDQI2UKLfkUAYn4+ziTeBTnm5xTmcfZJ4PFtmx", "esta es la contrase;a definida por ambos usuarios");
-    // console.log(decrypted.toString());
 
+    arrayOfMessages[1001] = encrypted.toString();
 
+    // arrayOfMessages.forEach(function(message) {
+    //     // console.log(CryptoJS.AES.decrypt(message));
+    //     // console.log(getStringMemorySize(message));
+    //     var temp = CryptoJS.AES.decrypt(message, "esta es la contrase;a definida por ambos usuarios").toString(CryptoJS.enc.Latin1)
+    //     if (temp.split('**Date**')[1] !== undefined) {
+    //         document.getElementById('output').innerHTML = temp.split('**Date**')[0];
+    //     }
+    // });
+    arrayOfkeys[21] = "esta es la contrase;a definida por ambos usuarios";
 
-    console.log(CryptoJS.AES.decrypt(GenRdmTillLenght(encrypted.toString().length), "esta es la contrase;a definida por ambos usuarios").toString(CryptoJS.enc.Latin1))
-    console.log(CryptoJS.AES.decrypt(GenRdmTillLenght(encrypted.toString().length), "esta es la contrase;a definida por ambos usuarios").toString(CryptoJS.enc.Latin1))
-    console.log(CryptoJS.AES.decrypt(encrypted.toString(), "esta es la contrase;a definida por ambos usuarios").toString(CryptoJS.enc.Latin1))
-
+    //this tasks is to look at the performance of iterating in messages and trying a key for each message
+    arrayOfkeys.forEach(function(key) {
+        arrayOfMessages.forEach(function(message) {
+            var temp = CryptoJS.AES.decrypt(message, key).toString(CryptoJS.enc.Latin1);
+            if (temp.split('**Date**')[1] !== undefined) {
+                document.getElementById('diferent').innerHTML = temp.split('**Date**')[0];
+            }
+            //each correct decryption is a message for the conversation between this user and the user "b"
+        });
+    });
 </script>
