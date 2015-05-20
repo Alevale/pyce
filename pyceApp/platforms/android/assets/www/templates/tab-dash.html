@@ -1,5 +1,6 @@
 <ion-view view-title="Dashboard">
     <ion-content class="padding">
+
         <div class="list card" ng-hide='manual'>
             <div class="item item-divider">Recent Updates</div>
             <div class="item item-body">
@@ -10,18 +11,44 @@
         </div>
 
         <div class="list" ng-show='manual'>
-            <button class="button button-full button-assertive">
-                We had an issue with you camera.
+            <button class="button button-full bar bar-header bar-energized">
+                We had an issue with you camera!
             </button>
             <label class="item item-input">
-                <input type="text" placeholder="Name of the person">
+                <input type="text" ng-model="key" placeholder="Name of the person">
             </label>
             <label class="item item-input">
-                <input type="text" placeholder="Pasword in common">
+                <input type="password" ng-model="value" placeholder="Pasword in common">
             </label>
-            <label class="item item-input">
-                <textarea placeholder="Comments"></textarea>
-            </label>
+            <button class="button button-full button-positive" ng-click="saveOnLocal(key, value)">
+                Submit
+            </button>
+
+            <div class="row">
+                <div class="col">
+                    <div class="buttons">
+                        <button class="button button-icon icon ion-ios-minus-outline" ng-click="data.showDelete = !data.showDelete; data.showReorder = false"></button>
+                    </div>
+                </div>
+                <!-- <div class="col">
+                    Name of the passwords already saved
+                </div> -->
+            </div>
+
+            <ion-list show-delete="data.showDelete" show-reorder="data.showReorder">
+                <ion-item ng-repeat="(item, value) in items" item="item" href="#" class="item-remove-animate">
+                    {{ item }}
+                    <ion-delete-button class="ion-minus-circled" ng-click="onItemDelete(item)">
+                    </ion-delete-button>
+                    <!-- <ion-option-button class="button-balanced" ng-click="edit(item)">
+                        Edit
+                    </ion-option-button> -->
+                    <!-- <ion-option-button class="button-calm" ng-click="share(item)">
+                        Share
+                    </ion-option-button> -->
+                    <ion-reorder-button class="ion-navicon" on-reorder="moveItem(item, $fromIndex, $toIndex)"></ion-reorder-button>
+                </ion-item>
+            </ion-list>
         </div>
 
     </ion-content>

@@ -5,10 +5,34 @@
   The Friends service returns an array of friend data
 -->
 <ion-view view-title="{{chat.name}}">
-  <ion-content class="padding">
-    <img ng-src="{{chat.face}}" style="width: 64px; height: 64px">
-    <p>
-      {{chat.lastText}}
-    </p>
-  </ion-content>
+    <ion-content class="padding">
+        <div ng-repeat="message in decrypted ">
+            <div>
+                <div class="row" ng-show='message[2] === "received"'>
+                    <div class="col col-75" style='background-color: lightblue;'>{{message[0]}} {{message[1]}}</div>
+                    <div class="col"> </div>
+                </div>
+            </div>
+            <div>
+                <div class="row" ng-show='message[2] === "sent"'>
+                    <div class="col"> </div>
+                    <div class="col col-75" style='background-color: lightblue;'>{{message[0]}} {{message[1]}}</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="list">
+
+            <div class="item item-input-inset">
+                <label class="item-input-wrapper">
+                    <input type="text" placeholder="Email">
+                </label>
+                <button class="button button-small">
+                    Submit
+                </button>
+            </div>
+
+        </div>
+    </ion-content>
 </ion-view>

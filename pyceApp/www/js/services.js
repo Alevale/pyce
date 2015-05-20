@@ -3,33 +3,20 @@ angular.module('starter.services', [])
 .factory('Chats', function($http) {
     // Might use a resource here that returns a JSON array
 
-    // Some fake testing data
-    var chats = [{
-        id: 0,
-        name: 'Ben Sparrow',
-        lastText: 'You on your way?',
-        face: 'https://pbs.twimg.com/profile_images/514549811765211136/9SgAuHeY.png'
-    }, {
-        id: 1,
-        name: 'Max Lynx',
-        lastText: 'Hey, it\'s me',
-        face: 'https://avatars3.githubusercontent.com/u/11214?v=3&s=460'
-    }, {
-        id: 2,
-        name: 'Adam Bradleyson',
-        lastText: 'I should buy a boat',
-        face: 'https://pbs.twimg.com/profile_images/479090794058379264/84TKj_qa.jpeg'
-    }, {
-        id: 3,
-        name: 'Perry Governor',
-        lastText: 'Look at my mukluks!',
-        face: 'https://pbs.twimg.com/profile_images/491995398135767040/ie2Z_V6e.jpeg'
-    }, {
-        id: 4,
-        name: 'Mike Harrington',
-        lastText: 'This is wicked good ice cream.',
-        face: 'https://pbs.twimg.com/profile_images/578237281384841216/R3ae1n61.png'
-    }];
+    function decode(array, keyToUnlock, mode) {
+        var result = [];
+        array.messages.forEach(function(message) {
+            console.log(message.content);
+            if (message.content !== null) {
+                var temp = CryptoJS.AES.decrypt(message.content, keyToUnlock).toString(CryptoJS.enc.Latin1);
+                console.log(temp);
+                if (temp.split('**Date**')[1] !== undefined) {
+                    result.push([temp.split('**Date**')[0], message.created_at, mode]);
+                }
+            }
+        });
+        return result;
+    }
 
     return {
         all: function() {
@@ -45,20 +32,32 @@ angular.module('starter.services', [])
                     result = chat;
                 }
             });
-            return result || {
-                name: 'Nobody',
-                lastText: 'This had no response',
-                face: 'https://pbs.twimg.com/profile_images/578237281384841216/R3ae1n61.png'
-            };
+            return result;
         },
-        getFromApi: function(){
-          $http.get('https://pruebarails-alevale.c9.io/api/data').
-          success(function(data, status, headers, config) {
-            console.log(data, status, headers, config);
-          }).
-          error(function(data, status, headers, config) {
-            console.error('Smthing went wrong');
-          });
-        }
+        getFromApi: function(keyToUnlock, myOwnKey, callback) {
+            $http.get('https://pruebarails-alevale.c9.io/api/data').
+            success(function(data, status, headers, config) {
+                var total = [];
+                decode(data, keyToUnlock, 'received').forEach(function(item) {
+                    total.push(item);
+                });
+                decode(data, myOwnKey, 'sent').forEach(function(item) {
+                    total.push(item);
+                });
+
+                callback(null, total);
+            }).
+            error(function(data, status, headers, config) {
+                console.error('Smthing went wrong');
+            });
+        },
+        GenRdmTillLenght: function(num) {
+                var abc = 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,=,+,/,0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z';
+                var str = 'U2FsdGVkX1';
+                for (var i = str.length; i < num; i++) {
+                    str += abc.split(',')[(Math.floor(Math.random() * ((abc.length) / 2 - 0)) + 0)];
+                }
+                return str;
+            }
     };
 });
