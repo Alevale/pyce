@@ -10,28 +10,28 @@ angular.module('starter.controllers', ['ngCordova'])
 })
 
 .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-    console.log($stateParams.chatId);
-    console.log('****Password****', localStorage.getItem($stateParams.chatId));
-
-    $scope.decrypted = [
-        ["aaa", "2015-05-18T09:40:36.653Z", "received"],
-        ["aaa", "2015-05-18T09:40:36.653Z", "received"]
-    ];
+    console.log('*****ChatID*****' + $stateParams.chatId);
+    console.log('****Password****');
+    console.log(localStorage.getItem($stateParams.chatId));
 
     Chats.getFromApi(localStorage.getItem($stateParams.chatId), 'esta es la contrase;a definida por ambos usuarios', function(err, decrypted) {
-        $scope.$watch('decrypted', function() {
-            alert('hey, myVar has changed!');
+        $scope.decrypted = decrypted.sort(function(item1, item2) {
+            // console.log(item1[1],item2[1]);
+            return item1[1] > item2[1];
         });
-        $scope.decrypted = decrypted;
-        // .sort(function(item1, item2) {
-        //     return item1[1] < item2[1];
-        // });
-        // $scope.$apply();
     });
+    var msg = 'aaa';
+    // Chats.addToApi(msg, 'esta es la contrase;a definida por ambos usuarios', function(err, decrypted) {
+    //     // $scope.decrypted = decrypted.sort(function(item1, item2) {
+    //     //   // console.log(item1[1],item2[1]);
+    //     //     return item1[1] > item2[1];
+    //     // });
+    //     console.log('end!');
+    // });
 })
 
 .controller("ScannerController", function($scope, $cordovaBarcodeScanner) {
-    $scope.manual = true;
+    $scope.manual = false;
     $scope.data = {
         showDelete: false
     };

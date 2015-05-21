@@ -10,15 +10,24 @@ angular.module('starter.controllers', ['ngCordova'])
 })
 
 .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-    console.log($stateParams.chatId);
-    console.log('****Password****', localStorage.getItem($stateParams.chatId));
+    console.log('*****ChatID*****' + $stateParams.chatId);
+    console.log('****Password****');
+    console.log(localStorage.getItem($stateParams.chatId));
 
     Chats.getFromApi(localStorage.getItem($stateParams.chatId), 'esta es la contrase;a definida por ambos usuarios', function(err, decrypted) {
         $scope.decrypted = decrypted.sort(function(item1, item2) {
-          // console.log(item1[1],item2[1]);
+            // console.log(item1[1],item2[1]);
             return item1[1] > item2[1];
         });
     });
+    var msg = 'aaa';
+    // Chats.addToApi(msg, 'esta es la contrase;a definida por ambos usuarios', function(err, decrypted) {
+    //     // $scope.decrypted = decrypted.sort(function(item1, item2) {
+    //     //   // console.log(item1[1],item2[1]);
+    //     //     return item1[1] > item2[1];
+    //     // });
+    //     console.log('end!');
+    // });
 })
 
 .controller("ScannerController", function($scope, $cordovaBarcodeScanner) {
