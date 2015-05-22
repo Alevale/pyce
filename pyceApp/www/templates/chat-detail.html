@@ -8,17 +8,17 @@
     <ion-content class="padding">
         <div ng-repeat="message in decrypted ">
             <div>
-                <div class="row" ng-show='message[2] === "received"'>
-                    <div class="col col-75" style='background-color: lightblue;'>{{message[0]}} {{message[1]}}</div>
-                    <div class="col"> </div>
+                <div class="row">
+                    <div class="col col-25"> </div>
+                    <div class="col col-50" style='background-color: lightblue;'>{{message[0]}} {{message[1]}}</div>
                 </div>
             </div>
-            <div>
+            <!-- <div>
                 <div class="row" ng-show='message[2] === "sent"'>
                     <div class="col"> </div>
                     <div class="col col-75" style='background-color: lightblue;'>{{message[0]}} {{message[1]}}</div>
                 </div>
-            </div>
+            </div> -->
 
         </div>
 
@@ -26,9 +26,9 @@
 
             <div class="item item-input-inset">
                 <label class="item-input-wrapper">
-                    <input type="text" placeholder="Email">
+                    <input type="text" placeholder="Email" ng-model="inputField">
                 </label>
-                <button class="button button-small">
+                <button class="button button-small" ng-click="sendMessage(inputField)">
                     Submit
                 </button>
             </div>

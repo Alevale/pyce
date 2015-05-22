@@ -35,9 +35,16 @@
                 </div> -->
             </div>
 
+            <div ng-show="showPassclicked">
+                <div class="row">
+                    <div class="col col-25"> </div>
+                    <div class="col col-50" style='background-color: lightblue;'>"{{passwordOfItemClicked}}"</div>
+                </div>
+            </div>
+
             <ion-list show-delete="data.showDelete" show-reorder="data.showReorder">
-                <ion-item ng-repeat="(item, value) in items" item="item" href="#" class="item-remove-animate">
-                    {{ item }}
+                <ion-item ng-repeat="(item, value) in items" item="item" href="#" class="item-remove-animate" ng-click="showPassword(value)">
+                  Conversation with, {{ item }},  click to see the qr of the password.
                     <ion-delete-button class="ion-minus-circled" ng-click="onItemDelete(item)">
                     </ion-delete-button>
                     <!-- <ion-option-button class="button-balanced" ng-click="edit(item)">

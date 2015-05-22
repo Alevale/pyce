@@ -3,16 +3,14 @@ angular.module('starter.services', [])
 .factory('Chats', function($http) {
     // Might use a resource here that returns a JSON array
 
-    function decode(array, keyToUnlock, mode) {
-        console.log('estoy en decode');
+    function decode(array, keyToUnlock) {
         var result = [];
-        array.messages.forEach(function(message) {
-            console.log(message);
+        array.forEach(function(message) {
             if (message.content !== null) {
                 var temp = CryptoJS.AES.decrypt(message.content, keyToUnlock).toString(CryptoJS.enc.Latin1);
                 console.log(temp);
                 if (temp.split('**Date**')[1] !== undefined) {
-                    result.push([temp.split('**Date**')[0], message.created_at, mode]);
+                    result.push([temp.split('**Date**')[0], message.created_at]);
                 }
             }
         });
@@ -36,74 +34,58 @@ angular.module('starter.services', [])
             return result;
         },
         addToApi: function(msg, password, callback) {
-            $http.post('//pruebarails-alevale.c9.io/api/data.json', JSON.stringify({
-                "content": "U2FsdGVkX19bw46Lw6Tmr2nzgemitI1NkY1w0f4Tu2CfqUaXxUP9nI3zoeHXe2NGjZnrwFBXy/HBu+Fo1ImuF4xcPth9Re/L2QW5cjKB/A0=11"
-            }), {
+          var message = CryptoJS.AES.encrypt(msg + ' **Date** ' + (new Date()).toISOString(), password);
+          console.log(message.toString(CryptoJS.Latin1));
+            $http.post('https://pruebarails-alevale.c9.io/api/data.json', {
+                "content": message.toString(CryptoJS.Latin1)
+            }, {
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8',
                     dataType: 'json'
                 }
             }).
             success(function(data, status, headers, config) {
-                console.log('Success en getFromApi');
-                console.log(JSON.stringify(data));
-                console.log(status);
-                console.log(headers);
-                console.log(config);
-
-                // data.forEach(function(d) {
-                //     console.log(d);
-                // });
-                //
-                // var total = [];
-                // decode(data, keyToUnlock, 'received').forEach(function(item) {
-                //     total.push(item);
-                // });
-                // decode(data, myOwnKey, 'sent').forEach(function(item) {
-                //     total.push(item);
-                // });
-                //
-                // callback(null, total);
+                // console.log(JSON.stringify(decode(data.content, password)));
+                // decode(data.content, password)
+                // Store the message in you local database to know when you receive messages which have you sent
+                callback(null, data);
             }).
             error(function(data, status, headers, config) {
-                console.error('Fail en getFromApi!');
-                console.log(data);
-                console.log(status);
-                console.log(headers);
-                console.log(config);
+                callback('Error getting from database', {
+                    d: data,
+                    s: status,
+                    h: headers,
+                    c: config
+                });
             });
         },
-        getFromApi: function(keyToUnlock, myOwnKey, callback) {
-            console.log('estoy en getFromApi');
-            $http.get('http://pruebarails-alevale.c9.io/api/data', {
+        getFromApi: function(messagesKey, callback) {
+            $http.get('https://pruebarails-alevale.c9.io/api/data', {
                 headers: {
                     "Accept": "application/json, text/plain, */*",
                     "Content-Type": "application/json"
                 }
             }).
             success(function(data, status, headers, config) {
-                console.log('Success en getFromApi');
                 console.log(JSON.stringify(data));
                 console.log(status);
                 console.log(headers);
                 console.log(config);
 
-                var total = [];
-                decode(data, keyToUnlock, 'received').forEach(function(item) {
-                    total.push(item);
-                });
-                decode(data, myOwnKey, 'sent').forEach(function(item) {
-                    total.push(item);
+                var result = [];
+                decode(data.messages, messagesKey, 'received').forEach(function(item) {
+                    result.push(item);
                 });
 
-                callback(null, total);
+                callback(null, result);
             }).
             error(function(data, status, headers, config) {
-                console.error('Fail en getFromApi!');
-                console.log(data);
-                console.log(status);
-                console.log(headers);
-                console.log(config);
+                callback('Error getting from database', {
+                    d: data,
+                    s: status,
+                    h: headers,
+                    c: config
+                });
             });
         },
         GenRdmTillLenght: function(num) {

@@ -10,28 +10,33 @@ angular.module('starter.controllers', ['ngCordova'])
 })
 
 .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-    console.log('*****ChatID*****' + $stateParams.chatId);
-    console.log('****Password****');
-    console.log(localStorage.getItem($stateParams.chatId));
+    // console.log('*****ChatID*****' + $stateParams.chatId);
+    // console.log('****Password****');
+    // console.log(localStorage.getItem($stateParams.chatId));
 
-    Chats.getFromApi(localStorage.getItem($stateParams.chatId), 'esta es la contrase;a definida por ambos usuarios', function(err, decrypted) {
-        $scope.decrypted = decrypted.sort(function(item1, item2) {
-            // console.log(item1[1],item2[1]);
-            return item1[1] > item2[1];
+    $scope.getMessages = function() {
+        Chats.getFromApi(localStorage.getItem($stateParams.chatId), function(err, decrypted) {
+            $scope.decrypted = decrypted.sort(function(item1, item2) {
+                return item1[1] > item2[1];
+            });
         });
-    });
-    var msg = 'aaa';
-    // Chats.addToApi(msg, 'esta es la contrase;a definida por ambos usuarios', function(err, decrypted) {
-    //     // $scope.decrypted = decrypted.sort(function(item1, item2) {
-    //     //   // console.log(item1[1],item2[1]);
-    //     //     return item1[1] > item2[1];
-    //     // });
-    //     console.log('end!');
-    // });
+    };
+    $scope.getMessages();
+
+    $scope.inputField = 'Send some message';
+    $scope.sendMessage = function(msg) {
+        Chats.addToApi(msg, localStorage.getItem($stateParams.chatId), function(err, decrypted) {
+          // Should not charge again all the messages
+          // $scope.decrypted = decrypted.sort(function(item1, item2) {
+          //     return item1[1] > item2[1];
+          // });
+        });
+        $scope.getMessages();
+    };
 })
 
 .controller("ScannerController", function($scope, $cordovaBarcodeScanner) {
-    $scope.manual = false;
+    $scope.manual = true;
     $scope.data = {
         showDelete: false
     };
@@ -66,6 +71,12 @@ angular.module('starter.controllers', ['ngCordova'])
             localStorage.setItem(name, pass);
             $scope.loadItems();
         }
+    };
+
+    $scope.showPassclicked = false;
+    $scope.showPassword = function(pass){
+      $scope.passwordOfItemClicked = pass;
+      $scope.showPassclicked = !$scope.showPassclicked;
     };
 
     $scope.loadItems();
