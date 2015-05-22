@@ -26,12 +26,12 @@ angular.module('starter.controllers', ['ngCordova'])
     $scope.inputField = 'Send some message';
     $scope.sendMessage = function(msg) {
         Chats.addToApi(msg, localStorage.getItem($stateParams.chatId), function(err, decrypted) {
-          // Should not charge again all the messages
-          // $scope.decrypted = decrypted.sort(function(item1, item2) {
-          //     return item1[1] > item2[1];
-          // });
+            // Should not charge again all the messages
+            // $scope.decrypted = decrypted.sort(function(item1, item2) {
+            //     return item1[1] > item2[1];
+            // });
+            $scope.getMessages();
         });
-        $scope.getMessages();
     };
 })
 
@@ -74,9 +74,9 @@ angular.module('starter.controllers', ['ngCordova'])
     };
 
     $scope.showPassclicked = false;
-    $scope.showPassword = function(pass){
-      $scope.passwordOfItemClicked = pass;
-      $scope.showPassclicked = !$scope.showPassclicked;
+    $scope.showPassword = function(pass) {
+        $scope.passwordOfItemClicked = pass;
+        $scope.showPassclicked = !$scope.showPassclicked;
     };
 
     $scope.loadItems();
