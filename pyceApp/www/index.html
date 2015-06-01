@@ -6,6 +6,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
     <title></title>
+    <!-- Allow only acces to the site via https and on top to not charge anything without HTTPS -->
+    <script type="text/javascript">
+        if (window.location.protocol === "http:"){
+            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+        }
+    </script>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -43,13 +49,7 @@
     <script src="https://pyceapp-alevale.c9.io/js/FileSaver.min.js"></script>
     <script type="text/javascript" src="https://pyceapp-alevale.c9.io/js/crypto-js.js"></script>
 
-    
-    <!-- Allow only acces to the site via https -->
-    <script type="text/javascript">
-        if (window.location.protocol != "https:"){
-            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
-        }
-    </script>
+
 
 </head>
 
