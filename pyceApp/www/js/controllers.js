@@ -78,9 +78,9 @@ angular.module('starter.controllers', ['ngCordova'])
     }
     
     $scope.showPassclicked = false;
-    $scope.showPassword = function(pass){
-      $scope.passwordOfItemClicked = pass;
-      $scope.showPassclicked = !$scope.showPassclicked;
+    $scope.showPassword = function(pass) {
+        $scope.passwordOfItemClicked = pass;
+        $scope.showPassclicked = !$scope.showPassclicked;
     };
 
     $scope.loadItems();
