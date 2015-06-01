@@ -30,8 +30,8 @@ angular.module('starter.controllers', ['ngCordova'])
           // $scope.decrypted = decrypted.sort(function(item1, item2) {
           //     return item1[1] > item2[1];
           // });
+          $scope.getMessages();
         });
-        $scope.getMessages();
     };
 })
 
@@ -72,7 +72,11 @@ angular.module('starter.controllers', ['ngCordova'])
             $scope.loadItems();
         }
     };
-
+    
+    $scope.refresh = function () {
+        window.location.reload();
+    }
+    
     $scope.showPassclicked = false;
     $scope.showPassword = function(pass){
       $scope.passwordOfItemClicked = pass;
