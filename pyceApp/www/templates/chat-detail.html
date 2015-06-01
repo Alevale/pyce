@@ -1,8 +1,5 @@
 <!--
-  This template loads for the 'tab.friend-detail' state (app.js)
-  'friend' is a $scope variable created in the FriendsCtrl controller (controllers.js)
-  The FriendsCtrl pulls data from the Friends service (service.js)
-  The Friends service returns an array of friend data
+  This template shows the different messages that a user has been sending to other users
 -->
 <ion-view view-title="{{chat.name}}">
     <ion-content class="padding">
@@ -10,7 +7,13 @@
             <div>
                 <div class="row">
                     <div class="col col-25"> </div>
-                    <div class="col col-50" style='background-color: lightblue;'>{{message[0]}} {{message[1]}}</div>
+                    <div class="col col-50" style='background-color: lightblue;'>
+                        {{message[0]}}
+                        <span class="item-note">
+                            {{ setReadableTime(message[1])}}
+                        </span>
+                    
+                    </div>
                 </div>
             </div>
             <!-- <div>

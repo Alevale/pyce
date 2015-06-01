@@ -9,19 +9,34 @@ angular.module('starter.controllers', ['ngCordova'])
     $scope.people = localStorage;
 })
 
-.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
+.controller('ChatDetailCtrl', function($scope, $stateParams, Chats, $interval, $timeout) {
     // console.log('*****ChatID*****' + $stateParams.chatId);
     // console.log('****Password****');
     // console.log(localStorage.getItem($stateParams.chatId));
 
-    $scope.getMessages = function() {
-        Chats.getFromApi(localStorage.getItem($stateParams.chatId), function(err, decrypted) {
-            $scope.decrypted = decrypted.sort(function(item1, item2) {
-                return item1[1] > item2[1];
-            });
-        });
+    // $scope.getMessages = function() {
+    //     Chats.getFromApi(localStorage.getItem($stateParams.chatId), function(err, decrypted) {
+    //         $scope.decrypted = decrypted.sort(function(item1, item2) {
+    //             return item1[1] > item2[1];
+    //         });
+    //     });
+    // };
+    
+    $scope.decrypted = Chats.decode(localStorage.getItem($stateParams.chatId));
+    
+    
+    // Chats.onlygetMessage();
+    
+    $interval(function(){
+        $scope.decrypted = Chats.decode(localStorage.getItem($stateParams.chatId));
+        console.log('lanzado');
+    },2000)
+    
+    // $scope.getMessages();
+    
+    $scope.setReadableTime = function (date){
+        return moment(date).locale(window.navigator.userLanguage || window.navigator.language || 'en').fromNow();
     };
-    $scope.getMessages();
 
     $scope.inputField = 'Send some message';
     $scope.sendMessage = function(msg) {
@@ -30,9 +45,11 @@ angular.module('starter.controllers', ['ngCordova'])
           // $scope.decrypted = decrypted.sort(function(item1, item2) {
           //     return item1[1] > item2[1];
           // });
-          $scope.getMessages();
+          //avoiding making a get
+          $scope.decrypted.push([msg, (new Date).toISOString()]);
         });
     };
+    
 })
 
 .controller("ScannerController", function($scope, $cordovaBarcodeScanner) {
