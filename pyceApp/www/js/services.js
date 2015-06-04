@@ -1,6 +1,6 @@
 angular.module('starter.services', [])
 
-.factory('Chats', function($http, $interval) {
+.factory('Chats', function($http, $interval, StorageFactory) {
     // Might use a resource here that returns a JSON array
     
     function onlygetMessage() {
@@ -30,11 +30,13 @@ angular.module('starter.services', [])
     
     var magicMessage = [];
     
+    onlygetMessage();
+    
     $interval(function(){
         if (window.location.hash.match(RegExp('#/tab/chats/*')) !== null) {
             onlygetMessage();
         }
-    }, 1000);
+    }, 5000);
     
     
     return {
@@ -53,7 +55,9 @@ angular.module('starter.services', [])
             });
             return result;
         },
-        messagesInDB: magicMessage,
+        messagesInDB: function(){
+            return magicMessage;
+        },
         addToApi: function(msg, password, callback) {
           var message = CryptoJS.AES.encrypt(msg + ' **Date** ' + (new Date()).toISOString(), password);
         //   console.log(message.toString(CryptoJS.Latin1));
@@ -104,17 +108,44 @@ angular.module('starter.services', [])
                 });
             });
         },
-        decode:function(keyToUnlock) {
-            var result = [];
-            magicMessage.forEach(function(message) {
-                if (message.content !== null) {
-                    var temp = CryptoJS.AES.decrypt(message.content, keyToUnlock).toString(CryptoJS.enc.Latin1);
-                    // console.log(temp);
-                    if (temp.split('**Date**')[1] !== undefined) {
-                        result.push([temp.split('**Date**')[0], message.created_at]);
+        decode:function(friendName) {
+            //Nos pasa el nombre del amigo, de ahi sacamos la contrase;a (dentro de friends)
+            //y el historiasl de mensajes (dentro de mensages)
+            //llamar mejor a las variables
+            
+            var keyToUnlock = StorageFactory.getOne('friends', friendName);
+            var decryptedMessages = StorageFactory.getOne('messages', friendName);
+            var lastMessageTime = StorageFactory.getOne('times', friendName);
+            
+            
+            if(lastMessageTime){
+                var result = decryptedMessages;
+                magicMessage.forEach(function(message) {
+                    if (message.created_at > lastMessageTime) {
+                        var temp = CryptoJS.AES.decrypt(message.content, keyToUnlock).toString(CryptoJS.enc.Latin1);
+                        if (temp.split('**Date**')[1] !== undefined) {
+                            result.push([temp.split('**Date**')[0], message.created_at]);
+                        }
                     }
-                }
-            });
+                });
+                StorageFactory.addOne('messages', friendName, result);
+                StorageFactory.addOne('times', friendName, result[result.length-1][1])
+                return result;
+            }else{
+                var result = [];
+                magicMessage.forEach(function(message) {
+                    if (message.content !== null) {
+                        var temp = CryptoJS.AES.decrypt(message.content, keyToUnlock).toString(CryptoJS.enc.Latin1);
+                        if (temp.split('**Date**')[1] !== undefined) {
+                            result.push([temp.split('**Date**')[0], message.created_at]);
+                        }
+                    }
+                });
+                StorageFactory.addOne('messages', friendName, result);
+                StorageFactory.addOne('times', friendName, result[result.length-1]!== undefined? result[result.length-1][1]: null)
+                return result;
+            }
+
             return result;
         },
         GenRdmTillLenght: function(num) {
@@ -126,4 +157,36 @@ angular.module('starter.services', [])
             return str;
         }
     };
+})
+.factory('StorageFactory', function(){
+    var getter =function(name){
+        return JSON.parse(localStorage.getItem(name)) || {};
+    };
+        
+    var setter = function(name, value){
+        localStorage.setItem(name, JSON.stringify(value));
+    };
+    
+    return{
+        getter: getter,
+        setter: setter,
+        getOne: function(collection, itemName){
+            return getter(collection)[itemName];
+        },
+        addOne: function(collection, itemName, value){
+            var items = getter(collection);
+            items[itemName] = value;
+            localStorage.setItem(collection, JSON.stringify(items));
+        },
+        modOne: function(collection, itemName, newValue){
+            var items = getter(collection);
+            items[itemName] = newValue;
+            localStorage.setItem(collection, JSON.stringify(items));
+        },
+        removeOne: function(collection, itemName){
+            var items = getter(collection);
+            delete items[itemName];
+            localStorage.setItem(collection, JSON.stringify(items));   
+        }
+    }
 });

@@ -4,35 +4,34 @@ angular.module('starter.controllers', ['ngCordova'])
 
 //wherever we see a call to Chats, we are calling the factorie that builds our objects
 
-.controller('ChatsCtrl', function($scope, Chats) {
+.controller('ChatsCtrl', function($scope, Chats, StorageFactory) {
     // for looking "our friends" we need just to see the name of the key in the localStorage
-    $scope.people = localStorage;
+    $scope.$watch(function(){
+        return localStorage.getItem('friends');
+    },function(){
+        $scope.people = StorageFactory.getter('friends');
+    })
 })
 
-.controller('ChatDetailCtrl', function($scope, $stateParams, Chats, $interval, $timeout) {
-    // console.log('*****ChatID*****' + $stateParams.chatId);
-    // console.log('****Password****');
-    // console.log(localStorage.getItem($stateParams.chatId));
+.controller('ChatDetailCtrl', function($scope, $stateParams, Chats, $interval, $timeout, StorageFactory) {
+    
+    $scope.decrypted = Chats.decode($stateParams.chatId);
+    
+    $scope.preventlock = Chats.messagesInDB().length;
 
-    // $scope.getMessages = function() {
-    //     Chats.getFromApi(localStorage.getItem($stateParams.chatId), function(err, decrypted) {
-    //         $scope.decrypted = decrypted.sort(function(item1, item2) {
-    //             return item1[1] > item2[1];
-    //         });
-    //     });
-    // };
-    
-    $scope.decrypted = Chats.decode(localStorage.getItem($stateParams.chatId));
-    
-    
-    // Chats.onlygetMessage();
-    
     $interval(function(){
-        $scope.decrypted = Chats.decode(localStorage.getItem($stateParams.chatId));
-        console.log('lanzado');
-    },2000)
+        //handle multiple intervals
+        console.log('otro evento mas, desencriptando', $stateParams.chatId);
+        if(Chats.messagesInDB().length !== $scope.preventlock){
+            $scope.decrypted = Chats.decode($stateParams.chatId);
+            $scope.preventlock = Chats.messagesInDB().length;
+        }
+    },5000)
     
-    // $scope.getMessages();
+    // This should be the way everything works
+    // $scope.$watch(function(obj){ return obj.messagesInDB();}.bind(null,Chats), function() {
+    //   debugger
+    // });
     
     $scope.setReadableTime = function (date){
         return moment(date).locale(window.navigator.userLanguage || window.navigator.language || 'en').fromNow();
@@ -40,31 +39,28 @@ angular.module('starter.controllers', ['ngCordova'])
 
     $scope.inputField = 'Send some message';
     $scope.sendMessage = function(msg) {
-        Chats.addToApi(msg, localStorage.getItem($stateParams.chatId), function(err, decrypted) {
-          // Should not charge again all the messages
-          // $scope.decrypted = decrypted.sort(function(item1, item2) {
-          //     return item1[1] > item2[1];
-          // });
-          //avoiding making a get
+        $scope.inputField = '';
+        Chats.addToApi(msg, StorageFactory.getter($stateParams.chatId), function(err, decrypted) {
           $scope.decrypted.push([msg, (new Date).toISOString()]);
         });
     };
     
 })
 
-.controller("ScannerController", function($scope, $cordovaBarcodeScanner) {
+.controller("ScannerController", function($scope, $cordovaBarcodeScanner, StorageFactory) {
     $scope.manual = true;
     $scope.data = {
         showDelete: false
     };
 
-    $scope.onItemDelete = function(item) {
-        localStorage.removeItem(item);
+    $scope.onItemDelete = function(name) {
+        localStorage.removeItem(name);
+        StorageFactory.removeOne('friends', name);
         $scope.loadItems();
     };
 
     $scope.loadItems = function() {
-        $scope.items = localStorage;
+        $scope.items = StorageFactory.getter('friends');
     };
 
     $scope.scanBarcode = function() {
@@ -85,7 +81,7 @@ angular.module('starter.controllers', ['ngCordova'])
 
     $scope.saveOnLocal = function(name, pass) {
         if (name !== 'undefined') {
-            localStorage.setItem(name, pass);
+            StorageFactory.addOne('friends', name, pass);
             $scope.loadItems();
         }
     };
