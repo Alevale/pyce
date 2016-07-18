@@ -4,90 +4,146 @@ angular.module('starter.controllers', ['ngCordova'])
 
 //wherever we see a call to Chats, we are calling the factorie that builds our objects
 
-.controller('ChatsCtrl', function($scope, Chats) {
+.controller('ChatsCtrl', function($scope, Chats, StorageFactory) {
     // for looking "our friends" we need just to see the name of the key in the localStorage
-    $scope.people = localStorage;
+    $scope.$watch(function(){
+        return localStorage.getItem('friends');
+    },function(){
+        $scope.people = StorageFactory.getter('friends');
+    })
 })
 
-.controller('ChatDetailCtrl', function($scope, $stateParams, Chats, $interval, $timeout) {
-    // console.log('*****ChatID*****' + $stateParams.chatId);
-    // console.log('****Password****');
-    // console.log(localStorage.getItem($stateParams.chatId));
-
-    // $scope.getMessages = function() {
-    //     Chats.getFromApi(localStorage.getItem($stateParams.chatId), function(err, decrypted) {
-    //         $scope.decrypted = decrypted.sort(function(item1, item2) {
-    //             return item1[1] > item2[1];
-    //         });
-    //     });
-    // };
-    
-    $scope.decrypted = Chats.decode(localStorage.getItem($stateParams.chatId));
+.controller('ChatDetailCtrl', function($scope, $stateParams, Chats, $interval, $timeout, StorageFactory) {
     
     
-    // Chats.onlygetMessage();
+    //We sould have a different location for the messages send by us and the ones that has been send by the others...
+    Chats.decode($stateParams.chatId);
     
-    $interval(function(){
-        $scope.decrypted = Chats.decode(localStorage.getItem($stateParams.chatId));
-        console.log('lanzado');
-    },2000)
+    var organizeMessages = function(localeMessage, obj){
+        $scope.allMessages = [];
+        $scope.decrypted = StorageFactory.getOne('messages', $stateParams.chatId);
+        $scope.myMessages = StorageFactory.getOne('sendedMessages', $stateParams.chatId);
+        
+        $scope.decrypted.forEach(function(array) {
+            if ($scope.myMessages.length > 0) {
+                array.ismine = $scope.myMessages.some(function(msg){
+                    return msg[1] === array[1]; 
+                });
+            }else{
+                array.ismine = false;
+            }
+            $scope.allMessages.push(array);
+        });
+        
+        if (localeMessage) {
+            obj.ismine = true;
+            $scope.allMessages.push(obj);
+        }
+        $scope.allMessages.sort(function(i1, i2){
+            return new Date(i1[1]) > new Date(i2[1]) ? 1 : -1;
+        });
+        $scope.allMessages.lastKnownMesssage = $scope.myMessages[0]? $scope.myMessages[0][1] : (new Date).toISOString();
+    }
+    organizeMessages();
     
-    // $scope.getMessages();
+    $scope.$on('$destroy', function () {
+        //Kill of the set Interval to do not charge the aplication.
+        $interval.cancel(decryptEveryTime);
+    });
+    
+    $scope.lock = Chats.messagesInDB().length;
+    var decryptEveryTime = $interval(function(){
+        if($scope.lock !== Chats.messagesInDB().length){
+            debugger
+            Chats.decode($stateParams.chatId);
+            organizeMessages();
+            $scope.lock = Chats.messagesInDB().length;
+            console.log('Sended');
+        }
+    },500)
+    
+    decryptEveryTime;
     
     $scope.setReadableTime = function (date){
         return moment(date).locale(window.navigator.userLanguage || window.navigator.language || 'en').fromNow();
     };
 
-    $scope.inputField = 'Send some message';
+    $scope.inputField = '';
     $scope.sendMessage = function(msg) {
-        Chats.addToApi(msg, localStorage.getItem($stateParams.chatId), function(err, decrypted) {
-          // Should not charge again all the messages
-          // $scope.decrypted = decrypted.sort(function(item1, item2) {
-          //     return item1[1] > item2[1];
-          // });
-          //avoiding making a get
-          $scope.decrypted.push([msg, (new Date).toISOString()]);
+        $scope.inputField = '';
+        Chats.addToApi(msg, $stateParams.chatId, function(err, decrypted) {
+            var result = StorageFactory.getOne("sendedMessages", $stateParams.chatId);
+            if (result.length > 0) {
+                result.push([msg, decrypted.messages.created_at]);
+            }else{
+                result = [[msg, decrypted.messages.created_at]];
+            }
+            StorageFactory.addOne("sendedMessages", $stateParams.chatId, result);
+            organizeMessages(true, [[msg, decrypted.messages.created_at]]);
+        //   $scope.decrypted.push([msg, decrypted.messages.created_at]);
         });
     };
     
 })
 
-.controller("ScannerController", function($scope, $cordovaBarcodeScanner) {
-    $scope.manual = true;
+.controller("ScannerController", function($scope, $cordovaBarcodeScanner, StorageFactory, $ionicPopup) {
+    $scope.camera = true;
     $scope.data = {
         showDelete: false
     };
-
-    $scope.onItemDelete = function(item) {
-        localStorage.removeItem(item);
+    $scope.key = "";
+    $scope.value = "";
+    
+    $scope.onItemDelete = function(name) {
+        //we have to remove the friend name and the messages decrypted for him...
+        StorageFactory.removeOne('friends', name);
+        StorageFactory.removeOne('messages', name);
+        StorageFactory.removeOne('sendedMessages', name);
         $scope.loadItems();
     };
 
     $scope.loadItems = function() {
-        $scope.items = localStorage;
+        $scope.items = StorageFactory.getter('friends');
     };
+    
+    $scope.showAlert = function() {
+       var alertPopup = $ionicPopup.alert({
+         title: 'Sorry, we had an issue.',
+         template: 'It seems like your camera doesn\'t work in this device, please introduce the password manually'
+       });
+       alertPopup.then(function(res) {
+         console.log('Expecting a backdoor?');
+       });
+     };
 
     $scope.scanBarcode = function() {
+        //Why would somebody generate codes "pseudo-Randomly" if we hae in our disposition
+        //the hability to get all the codes that could be scanned around us? 
         try {
             $cordovaBarcodeScanner.scan().then(function(imageData) {
-                alert(imageData.text);
-                alert("Barcode Format -> " + imageData.format);
-                alert("Cancelled -> " + imageData.cancelled);
-                $scope.manual = !$scope.manual;
+                // alert(imageData.text);
+                // alert("Barcode Format -> " + imageData.format);
+                // alert("Cancelled -> " + imageData.cancelled);
+                $scope.value = imageData.text;
+                // $scope.camera = !$scope.camera;
             }, function(error) {
-                console.log("An error happened -> " + error);
-                $scope.manual = !$scope.manual;
+                console.log("Scan cancelled -> " + error);
+               $scope.camera = !$scope.camera;
             });
         } catch (E) {
-            $scope.manual = !$scope.manual;
+            //if this fires, is because we are not in the app
+           $scope.camera = !$scope.camera;
+           $scope.showAlert();
         }
     };
 
     $scope.saveOnLocal = function(name, pass) {
-        if (name !== 'undefined') {
-            localStorage.setItem(name, pass);
+        if (name) {
+            StorageFactory.addOne('friends', name, pass);
             $scope.loadItems();
         }
+        $scope.key = "";
+        $scope.value = "";
     };
     
     $scope.refresh = function () {
@@ -104,7 +160,13 @@ angular.module('starter.controllers', ['ngCordova'])
 })
 
 .controller('AccountCtrl', function($scope) {
-    $scope.settings = {
-        enableFriends: true
-    };
+    //here we should have the multiULockEnviroment
+    
+    //With the implementation of this feature, we could maybe implement some kind of backup pof the data... 
+    //Obviously is mus be set up in local (or in some kind of endpoint wich is called backup or something like this...)
+    //maybe in the endpoint of the "saved" passwords and profiles we could aslso implement the 3 times input
+    
+    //http://codepen.io/MrHill/pen/kLvcw
+    $scope.profilePassword = '';
+    
 });

@@ -3,11 +3,20 @@
 -->
 <ion-view view-title="{{chat.name}}">
     <ion-content class="padding">
-        <div ng-repeat="message in decrypted ">
-            <div>
+        
+
+        
+        <div ng-repeat="message in allMessages ">
+            <div class="list" ng-if='message[1] === allMessages.lastKnownMesssage && allMessages.lastKnownMesssage !== allMessages[0][1]'>
+                <button class="button button-full bar bar-header bar-balanced">
+                    We don't know who wrote the messages above.
+                </button>
+            </div>
+            
+            <div ng-if='message[1] < allMessages.lastKnownMesssage'>
                 <div class="row">
                     <div class="col col-25"> </div>
-                    <div class="col col-50" style='background-color: lightblue;'>
+                    <div class="col col-50" style='background-color: #AAF3DD;'>
                         {{message[0]}}
                         <span class="item-note">
                             {{ setReadableTime(message[1])}}
@@ -16,20 +25,77 @@
                     </div>
                 </div>
             </div>
-            <!-- <div>
-                <div class="row" ng-show='message[2] === "sent"'>
-                    <div class="col"> </div>
-                    <div class="col col-75" style='background-color: lightblue;'>{{message[0]}} {{message[1]}}</div>
+            
+            
+            <div ng-if='message[1] >= allMessages.lastKnownMesssage && !message.ismine'>
+                <div class="row">
+                    <div class="col col-75" style='background-color: lightblue;'>
+                        {{message[0]}}
+                        <span class="item-note">
+                            {{ setReadableTime(message[1])}}
+                        </span>
+                    
+                    </div>
+                    <div class="col col-25"> </div>
                 </div>
-            </div> -->
-
+            </div>
+            
+            <div ng-if='message[1] >= allMessages.lastKnownMesssage && message.ismine'>
+                <div class="row">
+                    <div class="col col-25"> </div>
+                    <div class="col col-75" style='background-color: lightgreen;'>
+                        {{message[0]}}
+                        <span class="item-note">
+                            {{ setReadableTime(message[1])}}
+                        </span>
+                    
+                    </div>
+                </div>
+            </div>
+            
+            
         </div>
+        
+        
 
+        
+        
+        <!--<div ng-repeat="message in decrypted ">-->
+        <!--    <div>-->
+        <!--        <div class="row">-->
+        <!--            <div class="col col-75" style='background-color: lightblue;'>-->
+        <!--                {{message[0]}}-->
+        <!--                <span class="item-note">-->
+        <!--                    {{ setReadableTime(message[1])}}-->
+        <!--                </span>-->
+                    
+        <!--            </div>-->
+        <!--            <div class="col col-25"> </div>-->
+        <!--        </div>-->
+        <!--    </div>-->
+        <!--</div>-->
+        
+        <!--<div ng-repeat="message in myMessages ">-->
+        <!--    <div>-->
+        <!--        <div class="row">-->
+        <!--            <div class="col col-25"> </div>-->
+        <!--            <div class="col col-75" style='background-color: lightgreen;'>-->
+        <!--                {{message[0]}}-->
+        <!--                <span class="item-note">-->
+        <!--                    {{ setReadableTime(message[1])}}-->
+        <!--                </span>-->
+                    
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--    </div>-->
+        <!--</div>-->
+        
+        
         <div class="list">
 
             <div class="item item-input-inset">
                 <label class="item-input-wrapper">
-                    <input type="text" placeholder="Email" ng-model="inputField">
+                    <input type="text" placeholder="Send some message" ng-model="inputField" style="width: 100%;">
                 </label>
                 <button class="button button-small" ng-click="sendMessage(inputField)">
                     Submit
