@@ -1,15 +1,12 @@
 angular.module('starter.services', [])
 
 .factory('Chats', function($http, $interval, StorageFactory) {
-    // Might use a resource here that returns a JSON array
-    
+
     function getMessage() {
-        //we need to refactor this and do separate functions
-        
         var url = 'https://pruebarails-alevale.c9.io/api/data'
         
-        if (magicMessage[0] !== undefined) {
-            var date = (new Date((new Date(magicMessage[(magicMessage.length)-1].created_at)).getTime()+1)).toISOString();
+        if (arrayOfMessages[0] !== undefined) {
+            var date = (new Date((new Date(arrayOfMessages[(arrayOfMessages.length)-1].created_at)).getTime()+1)).toISOString();
             url +="?created_at="+date
         }
         
@@ -20,21 +17,21 @@ angular.module('starter.services', [])
             }
         }).
         success(function(data, status, headers, config) {
-            if(magicMessage.length === data.messages.length || !data.messages.length ){
+            if(arrayOfMessages.length === data.messages.length || !data.messages.length ){
                 console.log("No new messages in DB");
             }else{
-                if(magicMessage.length > 0){
+                if(arrayOfMessages.length > 0){
                     data.messages.forEach(function(message){
-                      magicMessage.push(message);
+                      arrayOfMessages.push(message);
                     });
                 }else{
-                    magicMessage = data.messages;
+                    arrayOfMessages = data.messages;
                 }
             }
         });
-    };
+    }
     
-    var magicMessage = [];
+    var arrayOfMessages = [];
     
     getMessage();
     
@@ -63,7 +60,7 @@ angular.module('starter.services', [])
             return result;
         },
         messagesInDB: function(){
-            return magicMessage;
+            return arrayOfMessages;
         },
         addToApi: function(msg, friendName, callback) {
             var password = StorageFactory.getOne('friends', friendName);
@@ -128,7 +125,7 @@ angular.module('starter.services', [])
             
             if(lastMessageTime.length > 0){
                 var result = decryptedMessages;
-                magicMessage.forEach(function(message) {
+                arrayOfMessages.forEach(function(message) {
                     if (message.created_at > lastMessageTime) {
                         var temp = CryptoJS.AES.decrypt(message.content, keyToUnlock).toString(CryptoJS.enc.Latin1);
                         if (temp.split('**Date**')[1] !== undefined) {
@@ -140,7 +137,7 @@ angular.module('starter.services', [])
                 StorageFactory.addOne('times', friendName, result[result.length-1][1])
             }else{
                 var result = [];
-                magicMessage.forEach(function(message) {
+                arrayOfMessages.forEach(function(message) {
                     if (message.content !== null) {
                         var temp = CryptoJS.AES.decrypt(message.content, keyToUnlock).toString(CryptoJS.enc.Latin1);
                         if (temp.split('**Date**')[1] !== undefined) {
@@ -166,7 +163,7 @@ angular.module('starter.services', [])
 })
 .factory('ProfileManagerFactory', function(StorageFactory){
     var profilePassword = "";
-    //when descifrating u have to see to which profile it corresponds, if with none, then you hav to create a new profile called genericly
+    //when decrypting you have to see to which profile it corresponds, if with none, then you hav to create a new profile called generically
     var usingNameOfProfile = "";
     
     return{
@@ -181,7 +178,7 @@ angular.module('starter.services', [])
             //localStorage messages and change the name of the using profile to the one that should be saved
             var profiles = StorageFactory.getter("profiles") || {};
             profiles.forEach(function(profile){
-                //decode each profile withthe using password
+                //decode each profile with the using password
                 console.log();
                 //if none of the password has a profile associated
                 //then modify the storage to have no elements inside

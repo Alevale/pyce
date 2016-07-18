@@ -35,7 +35,7 @@
 
         <div class="list" ng-show='camera'>
             <button ng-click='scanBarcode()' class="button button-full bar bar-header bar-balanced">
-                Scan a new code to create a password.
+                Scan a qr code to create a password.
             </button>
         </div>
 
@@ -44,7 +44,7 @@
                 <input type="text" ng-model="key" placeholder="Name of the person">
             </label>
             <label class="item item-input">
-                <input type="password" ng-model="value" placeholder="Pasword in common">
+                <input type="password" ng-model="value" placeholder="Password in common">
             </label>
             <button class="button button-full button-positive" ng-click="saveOnLocal(key, value)">
                 Submit

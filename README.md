@@ -1,10 +1,11 @@
 #Proyect Developer, Alejandro Vales Sertage
 
-The main objective is to create a web application that encripts the messages that the people is sending over the net.
+This application has as objective to create a secure communication using encryption and broadcasting to everyone as the way to deal with messaging decryption.
 
-The main objective is to make impossible to know who is speaking to who by just sending all the messages to everyone that is connected.
+The main objective is to create a mobile and web application that encrypts the messages that the people is sending over the net by
+broadcasting we make more difficult to know who is speaking to who.
 
-This example is explained using a database. But for real usage, the database should not be used and the mobiles should be the only ones that have the backup of their own messages.
+This example is explained using a database. But for real usage, the database should not exist and the applications should be the only ones that have the backup of their own messages.
 
 There is only a Database, that has a Message Table, and we don't need any kind of user Table, because the main objective for the application is to keep them anonimous, so that someone that tries to *"sniffer"* the user by reading all the mesages that go to his device is not able to understand anything.
 
@@ -25,40 +26,32 @@ so the sent messages to the Database will be
 
 -----------
 U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA==
-
 -----------
 kj12tv12btqfwDAJJDAJAu21bkj2QWTHFWOHWfqwlfhip3d2q634bkj11bkj4rgqi2ohih52oEHqTrqnl0bbzA==
-
 -----------
 U2FsdG/qrVkX1%#dhU2FaJAdP125vk1467hj45hlt13rtl1v3tl1t3413b13gligt341tg1r3EHqTrqnl0bbzA==
 
 -----------
 
-Those tree values will be written in the database so the database will have
-
+Those tree values will be written in the database and we will have
 
 1 -> U2FsdGVkX1+bdhHYUoYpaJAdP/Ryj7aYcJyv7VYquNmC0eM+UxFTZu39Gyk9kilYmdAkqbRSoEHqTrqnl0bbzA==
-
 2 -> kj12tv12btqfwDAJJDAJAu21bkj2QWTHFWOHWfqwlfhip3d2q634bkj11bkj4rgqi2ohih52oEHqTrqnl0bbzA==
-
 3 -> U2FsdG/qrVkX1%#dhU2FaJAdP125vk1467hj45hlt13rtl1v3tl1t3413b13gligt341tg1r3EHqTrqnl0bbzA==
 
 
 User B connects to the application and has the *password* from the User A, *"we suppose they know that the password has to be sent by a secure channel"* and has to be as long as they need to make it secure and unique
 
-User B applies AES to each message, and the messages are  
+User B applies AES to each message, and the messages are
 
 1 -> Hello how are you
-
 2 -> ----
-
 3 -> ----
 
-So the communication has been secure,  *we have to assume that something that has been securelly comunicated is what has been decrypted after spending more than the value that the information is worth*
-
+*We assume that something that has been securely communicated is what has been decrypted after spending more than the value that the information is worth* So the communication has been secure. (The expenses in decrypting this are really quite more expensive than what a "Hello World" is worth)
 
 In the end of the message we are putting a Date time-stamp in ISO format, to be able to see it the message has been well decrypted, and to keep track of the order that the messages should appear.
 
-For the password introduction we will use the keyboard and the mouse and we will avoid any kind of problem installing a keylogger in the user's computer.
+For the password introduction we will use the keyboard and the mouse and we will avoid any kind of problem installing a keylogger in the user's computer. (To be done)
 
-In order to be able to se a historic file of the messages that the user has, we are going to read and write an encripted file, so that the user don't lose the other contacts or conversations that he had in the past
+In order to be able to se a historic file of the messages that the user has, we are going to read and write an encripted file, so that the user don't lose the other contacts or conversations that he had in the past (To be done)
