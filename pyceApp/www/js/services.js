@@ -3,7 +3,9 @@ angular.module('starter.services', [])
 .factory('Chats', function($http, $interval, StorageFactory) {
     // Might use a resource here that returns a JSON array
     
-    function onlygetMessage() {
+    function getMessage() {
+        //we need to refactor this and do separate functions
+        
         var url = 'https://pruebarails-alevale.c9.io/api/data'
         
         if (magicMessage[0] !== undefined) {
@@ -18,25 +20,30 @@ angular.module('starter.services', [])
             }
         }).
         success(function(data, status, headers, config) {
-            if(magicMessage.length > 0){
-                data.messages.forEach(function(message){
-                  magicMessage.push(message);
-                });
+            if(magicMessage.length === data.messages.length || !data.messages.length ){
+                console.log("No new messages in DB");
             }else{
-                magicMessage = data.messages;
+                if(magicMessage.length > 0){
+                    data.messages.forEach(function(message){
+                      magicMessage.push(message);
+                    });
+                }else{
+                    magicMessage = data.messages;
+                }
             }
         });
     };
     
     var magicMessage = [];
     
-    onlygetMessage();
+    getMessage();
     
     $interval(function(){
         if (window.location.hash.match(RegExp('#/tab/chats/*')) !== null) {
-            onlygetMessage();
+            getMessage();
         }
-    }, 5000);
+    }, 3000);
+    
     
     
     return {
@@ -58,8 +65,10 @@ angular.module('starter.services', [])
         messagesInDB: function(){
             return magicMessage;
         },
-        addToApi: function(msg, password, callback) {
-          var message = CryptoJS.AES.encrypt(msg + ' **Date** ' + (new Date()).toISOString(), password);
+        addToApi: function(msg, friendName, callback) {
+            var password = StorageFactory.getOne('friends', friendName);
+            
+            var message = CryptoJS.AES.encrypt(msg + ' **Date** ' + (new Date()).toISOString(), password);
         //   console.log(message.toString(CryptoJS.Latin1));
             $http.post('https://pruebarails-alevale.c9.io/api/data.json', {
                 "content": message.toString(CryptoJS.Latin1)
@@ -109,16 +118,15 @@ angular.module('starter.services', [])
             });
         },
         decode:function(friendName) {
-            //Nos pasa el nombre del amigo, de ahi sacamos la contrase;a (dentro de friends)
-            //y el historiasl de mensajes (dentro de mensages)
-            //llamar mejor a las variables
-            
+            //we receive the friends name and get the password (dentro de friends)
+            //we get the message history with the friend (dentro de mensages)
+
             var keyToUnlock = StorageFactory.getOne('friends', friendName);
             var decryptedMessages = StorageFactory.getOne('messages', friendName);
             var lastMessageTime = StorageFactory.getOne('times', friendName);
             
             
-            if(lastMessageTime){
+            if(lastMessageTime.length > 0){
                 var result = decryptedMessages;
                 magicMessage.forEach(function(message) {
                     if (message.created_at > lastMessageTime) {
@@ -130,7 +138,6 @@ angular.module('starter.services', [])
                 });
                 StorageFactory.addOne('messages', friendName, result);
                 StorageFactory.addOne('times', friendName, result[result.length-1][1])
-                return result;
             }else{
                 var result = [];
                 magicMessage.forEach(function(message) {
@@ -143,7 +150,6 @@ angular.module('starter.services', [])
                 });
                 StorageFactory.addOne('messages', friendName, result);
                 StorageFactory.addOne('times', friendName, result[result.length-1]!== undefined? result[result.length-1][1]: null)
-                return result;
             }
 
             return result;
@@ -158,6 +164,34 @@ angular.module('starter.services', [])
         }
     };
 })
+.factory('ProfileManagerFactory', function(StorageFactory){
+    var profilePassword = "";
+    //when descifrating u have to see to which profile it corresponds, if with none, then you hav to create a new profile called genericly
+    var usingNameOfProfile = "";
+    
+    return{
+        getPassword: function(){
+            return profilePassword;
+        },
+        setPassword: function(value){
+            this.profilePassword = value;
+        },
+        getAlreadycreatedProfiles: function(){
+            //retrieve the messages and paste them into
+            //localStorage messages and change the name of the using profile to the one that should be saved
+            var profiles = StorageFactory.getter("profiles") || {};
+            profiles.forEach(function(profile){
+                //decode each profile withthe using password
+                console.log();
+                //if none of the password has a profile associated
+                //then modify the storage to have no elements inside
+            });
+        },
+        saveMessagesOnProfile: function(){
+            //save the actual items into the profile name that was defined when changed the password
+        }
+    }
+})
 .factory('StorageFactory', function(){
     var getter =function(name){
         return JSON.parse(localStorage.getItem(name)) || {};
@@ -171,7 +205,7 @@ angular.module('starter.services', [])
         getter: getter,
         setter: setter,
         getOne: function(collection, itemName){
-            return getter(collection)[itemName];
+            return getter(collection)[itemName] || {};
         },
         addOne: function(collection, itemName, value){
             var items = getter(collection);
